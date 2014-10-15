@@ -16,6 +16,8 @@ return array(
 	'import'=>array(
 		'application.models.*',
 		'application.components.*',
+		'application.controllers.*',
+		'application.helpers.*',
 	),
 
 	'modules'=>array(
@@ -34,6 +36,12 @@ return array(
 	'components'=>array(
 		'user'=>array(
 			// enable cookie-based authentication
+            //////////////////////
+            'class' => 'WebUser',
+            'allowAutoLogin' => true,
+            'authTimeout' => 60 * 120,
+            'loginUrl' => array('index/login'),
+            //////////////////////
 			'allowAutoLogin'=>true,
 		),
         'urlManager'=>array(

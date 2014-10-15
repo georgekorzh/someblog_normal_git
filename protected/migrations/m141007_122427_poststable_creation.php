@@ -11,6 +11,7 @@ class m141007_122427_poststable_creation extends CDbMigration
 			'id_author' => 'int NOT NULL',
 			//'status'    => 'tinyint(1) NOT NULL DEFAULT = 3',
 			'status'    => 'tinyint(1)',
+			'main_img'    => 'varchar(50)',
 		));
 		$this->addForeignKey('author', 'posts', 'id_author', 'users', 'id');
 	}

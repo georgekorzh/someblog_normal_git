@@ -1,34 +1,36 @@
 <?php
 
-class m141007_113554_userstable_creation extends CDbMigration
+class m141007_122427_poststable_creation extends CDbMigration
 {
-	public function up()
-	{
-		$this->createTable('users', array(
-			'id'     => 'int not null primary key auto_increment',
-			'login'  => 'varchar(20) not null unique key',
-			'email'	 => 'varchar(60) not null unique key',
-			'pass'	 => 'varchar(20) not null',
-			'pic'	 => 'varchar(30)',	
-		));
-	}
+    public function up()
+    {
+        $this->createTable('posts', array(
+            'id'        => 'int not null PRIMARY KEY AUTO_INCREMENT',
+            'title'     => 'varchar(200) NOT NULL',
+            'body'      => 'text',
+            'id_author' => 'int NOT NULL',
+            //'status'    => 'tinyint(1) NOT NULL DEFAULT = 3',
+            'status'    => 'tinyint(1)',
+            'main_img'    => 'varchar(50)',
+        ));
+        $this->addForeignKey('author', 'posts', 'id_author', 'users', 'id');
+    }
 
-	public function down()
-	{
-		//echo "m141007_113554_userstable_creation does not support migration down.\n";
-		//return false;
+    public function down()
+    {
+        //echo "m141007_122427_poststable_creation does not support migration down.\n";
+        //return false;
+        $this->dropTable('posts');
+    }
 
-		$this->dropTable('users');
-	}
+    /*
+    // Use safeUp/safeDown to do migration with transaction
+    public function safeUp()
+    {
+    }
 
-	/*
-	// Use safeUp/safeDown to do migration with transaction
-	public function safeUp()
-	{
-	}
-
-	public function safeDown()
-	{
-	}
-	*/
+    public function safeDown()
+    {
+    }
+    */
 }

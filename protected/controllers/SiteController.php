@@ -80,6 +80,9 @@ class SiteController extends Controller
 
         $model=new LoginForm;
 
+        //echo '<pre>';
+        //var_dump($model->getErrors());
+        //echo '</pre>';
 		// if it is ajax validation request
 		if(isset($_POST['ajax']) && $_POST['ajax']==='login-form')
 		{
@@ -91,16 +94,14 @@ class SiteController extends Controller
 		if(isset($_POST['LoginForm']))
 		{
 
+
 			$model->attributes=$_POST['LoginForm'];
 			// validate user input and redirect to the previous page if valid
 
             //$usMod = new Users;
             //$usArr = $usMod->find('LOWER(login)=?', array('admin'));
 
-            //echo '<pre>';
-            //var_dump($usArr->login);
-            //echo '</pre>';
-           // return;
+
 
             if($model->validate() && $model->login())
 				$this->redirect(Yii::app()->user->returnUrl);
@@ -108,6 +109,11 @@ class SiteController extends Controller
 		// display the login form
 		$this->render('login',array('model'=>$model));
 	}
+
+
+    /*
+     *API login
+    */
 
 	/**
 	 * Logs out the current user and redirect to homepage.
@@ -117,4 +123,16 @@ class SiteController extends Controller
 		Yii::app()->user->logout();
 		$this->redirect(Yii::app()->homeUrl);
 	}
+
+    private function _getStatMess($status){
+        $code = array(
+            200 => 'OK',
+            401 => 'Bad Request',
+            401 => 'Unauthorized',
+            402 => 'Payment Required',
+            404 => 'Not Found',
+            500 => 'Internal Server Error',
+            501 => 'Not Implemented'
+        );
+    }
 }

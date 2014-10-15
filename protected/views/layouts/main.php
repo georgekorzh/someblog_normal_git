@@ -9,6 +9,7 @@
 
         <!-- Bootstrap -->
         <link href="<?php echo Yii::app()->request->baseUrl; ?>/css/bootstrap.min.css" rel="stylesheet">
+        <link href="<?php echo Yii::app()->request->baseUrl; ?>/css/style.css" rel="stylesheet">
 
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -25,32 +26,33 @@
     <body>
     <div class="navbar navbar-inverse" id="real_top">
         <div class="container">
+            <?php
+                //echo '<pre>';
+                //var_dump(get_class_methods(get_class(Yii::app())));
+                //echo '</pre>';
+            ?>
             <div class="searchbody pull-right">
                 <?php
+
+                /**/
                 if(Yii::app()->user->isGuest) {
-                    /*
+                    /**/
                     ?>
                     <div class="for_form">
-                        <form class="form-inline" role="form">
-                            <div class="form-group">
-                                <input type="email" class="form-controll" placeholder="Email">
-                            </div>
-                            <div class="form-group">
-                                <input type="pasword" class="form-controll" placeholder="Password">
-                            </div>
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-default">Sign in</button>
-                                (<a>lostPasswordLink</a>)
-                            </div>
-                        </form>
+                        <?php
+                        echo CHtml::link('Sign In', Yii::app()->createAbsoluteUrl('site/login'), array('class'=>'btn btn-default', 'id'=> 'signIn'));
+                        echo CHtml::link('Sign Up', Yii::app()->createAbsoluteUrl('users/create'), array('class'=>'btn btn-default', 'id'=> 'signUp'));
+                        ?>
                     </div>
                 <?php
-                */
-                    echo CHtml::link('Sign in', Yii::app()->createAbsoluteUrl('site/login'), array('class'=>'btn btn-default'));
-                    echo '(<a>lostPasswordLink</a>)';
+                /**/
+                    //echo CHtml::link('Sign in', Yii::app()->createAbsoluteUrl('site/login'), array('class'=>'btn btn-default'));
+                    //echo CHtml::link('Sign up', Yii::app()->createAbsoluteUrl('users/create'), array('class'=>'btn btn-default'));
+                    //echo '(<a>lostPasswordLink</a>)';
+                /**/
                 }else{
                     echo CHtml::link('Sign out', Yii::app()->createAbsoluteUrl('site/logout'), array('class'=>'btn btn-default'));
-                }
+                } /**/
                  ?>
                 <!--input type="search" placeholder="Search">
                 <span class="glyphicon glyphicon-search"></span-->

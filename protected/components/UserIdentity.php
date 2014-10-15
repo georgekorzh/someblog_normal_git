@@ -7,6 +7,8 @@
  */
 class UserIdentity extends CUserIdentity
 {
+    private $_id;
+    public $user;
 	/**
 	 * Authenticates a user.
 	 * The example implementation makes sure if the username and password
@@ -32,13 +34,19 @@ class UserIdentity extends CUserIdentity
             $this->errorCode=self::ERROR_USERNAME_INVALID;
         }else {
             $users = array($usArr->login => $usArr->pass);
+
         }
 		if(!isset($users[$this->username]))
 			$this->errorCode=self::ERROR_USERNAME_INVALID;
 		elseif($users[$this->username]!==$this->password)
 			$this->errorCode=self::ERROR_PASSWORD_INVALID;
-		else
-			$this->errorCode=self::ERROR_NONE;
+        //elseif($usArr->status !=='1')
+            //$this->errorCode = 'You should confirm registration, the message was sent on '. $usArr->email;
+		else{
+            $this->_id = $usArr->id;
+            $this->user = $usArr;
+            $this->errorCode=self::ERROR_NONE;
+        }
 		return !$this->errorCode;
         /*
 		if(!isset($users[$this->username]))
@@ -49,4 +57,14 @@ class UserIdentity extends CUserIdentity
 			$this->errorCode=self::ERROR_NONE;
 		return !$this->errorCode;*/
 	}
+
+    public function setId($id)
+    {
+        $this->_id = $id;
+    }
+
+    public function getId()
+    {
+        return $this->_id;
+    }
 }

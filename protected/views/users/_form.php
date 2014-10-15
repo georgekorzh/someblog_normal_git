@@ -18,6 +18,7 @@
 )); ?>
 
 	<p class="note">Fields with <span class="required">*</span> are required.</p>
+    <p id="note"></p>
 
     <div class="some_errors_validation">
 	    <?php echo $form->errorSummary($model); ?>
@@ -54,6 +55,41 @@
 <?php $this->endWidget(); ?>
 
 </div><!-- form -->
+<script type="text/javascript" src="<?php echo Yii::app()->request->baseUrl; ?>/js/jquery.serializejson.min.js"></script>
 <script type="text/javascript">
-    $('#regForm').validate();
+    $('#regForm').validate(  {
+        rules:{
+            pic:{require:true}
+        },
+        submitHandler: function(form) {
+            var $form = $(form);
+            var self = this;
+            data = $form.serializeJSON();
+            //$form.find(':input').prop('disabled', true);
+            $(form).find(':input').prop('disabled', true);
+
+            $.post('<?php echo Yii::app()->createAbsoluteUrl('api/users/signup'); ?>' ,data)
+                .done(function(r) {
+                    $('#note').html(r);
+                    //alert('no_errors');
+                    location.href = '<?php echo Yii::app()->createAbsoluteUrl('site/login'); ?>';
+                    //$('#note').html(r);
+                })
+                .fail(function(xhr) {
+                    console.log(xhr.responseJSON.errors.pic);
+                    console.log(xhr.responseJSON.errors);
+                    //console.log(xhr.responseJSON.errors.regForm);
+                    //alert(xhr.responseJSON.errors);
+                    self.showErrors(xhr.getAllResponseHeaders);
+                    $form.find(':input').prop('disabled', false);
+                    $('#note').html(xhr.getAllResponseHeaders());
+                })
+                .complete(function(res) {
+                    $form.find(':input').prop('disabled', false);
+
+                });
+            return false;
+        }
+
+    });
 </script>

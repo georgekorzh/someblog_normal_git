@@ -13,7 +13,7 @@
  * The followings are the available model relations:
  * @property Posts[] $posts
  */
-class Users extends CActiveRecord
+class Users extends UserBase
 {
     public $pic;
     public $imgobj;
@@ -36,12 +36,13 @@ class Users extends CActiveRecord
 			array('login, email, pass', 'required'),
 			array('login, pass', 'length', 'max'=>20),
 			array('email', 'length','min'=>5, 'max'=>60),
-			array('pic', 'file', 'types'=>'png, jpg, gif'),
+			array('pic', 'file', 'types'=>'png, jpg, gif', 'allowEmpty' => true),
 			//array('pic', 'length', 'max'=>30),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			//array('id, login, email, pass', 'safe', 'on'=>'search'),
 			array('id, login, email, pass, pic', 'safe', 'on'=>'search'),
+			//array('id, login, email, pass', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -93,7 +94,7 @@ class Users extends CActiveRecord
 		$criteria->compare('login',$this->login,true);
 		$criteria->compare('email',$this->email,true);
 		$criteria->compare('pass',$this->pass,true);
-		//$criteria->compare('pic',$this->pic,true);
+		$criteria->compare('pic',$this->pic,false);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -110,4 +111,31 @@ class Users extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+
+
+    public static function getCurrent()
+    {
+        return parent::getCurrent();
+    }
+
+    public function getApiToken()
+    {
+        //return 'test';
+        return DCrypt::encrypt(array('id' => $this->id), Yii::app()->params['privateKey']);
+    }
+
+    public static function getByApiToken($token)
+    {
+        $data = DCrypt::decrypt($token, Yii::app()->params['privateKey']);
+        return User::model()->findByPk($data['id']);
+    }
+
+
+    public function getLoginToken()
+    {
+        return DCrypt::encrypt(array('id' => $this->id, 'salt' => $this->password), Yii::app()->params['privateKey']);
+    }
+
+
+
 }
