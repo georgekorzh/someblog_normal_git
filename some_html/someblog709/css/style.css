@@ -168,6 +168,9 @@
 .post-body.singlebody{
     padding:0;
 }
+.post-item .postdata{
+    margin-bottom: 30px;
+}
 .moreback{
     text-align:center;
 }
@@ -468,4 +471,46 @@ p.comment_date{
     border: none;
     font-size: 13px;
     font-weight: bold;
+}
+@media screen{
+    .content{
+        min-height:500px;
+    }
+}
+.pagination li a:link, .pagination li a:visited{
+    color:#fff;
+    text-align: center;
+    background-color:#99a1a9;
+    height:34px;
+    margin-right:10px;
+    border:none;
+    border-radius: 0px;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+}
+.pagination li a.nextPrev:link, .pagination li a.nextPrev:visited {
+    background-color: #eb005d;
+}
+
+.posts2show .dropdowm-menu{
+    min-width: inherit;
+}
+
+.footcont .row{
+    line-height: 50px;
+}
+.some_pags{
+    text-align:center;
+}
+.some_pags .dropdown{
+    display: inline-block;
+}
+/*
+.posts2show .btn, .posts2show .ul{
+    display: block;
+    margin: 0 auto;
+}
+*/
+.searchbody .btn{
+    margin: 7px 0;
 }

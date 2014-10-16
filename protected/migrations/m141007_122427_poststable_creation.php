@@ -5,14 +5,16 @@ class m141007_122427_poststable_creation extends CDbMigration
 	public function up()
 	{
 		$this->createTable('posts', array(
-			'id'        => 'int not null PRIMARY KEY AUTO_INCREMENT',
-			'title'     => 'varchar(200) NOT NULL',
-			'body'      => 'text',
-			'id_author' => 'int NOT NULL',
+			'id'            => 'int not null PRIMARY KEY AUTO_INCREMENT',
+			'title'         => 'varchar(200) NOT NULL',
+			'body'          => 'text',
+			'id_author'     => 'int NOT NULL',
 			//'status'    => 'tinyint(1) NOT NULL DEFAULT = 3',
-			'status'    => 'tinyint(1)',
-			'main_img'    => 'varchar(50)',
+			'status'        => 'tinyint(1)',
+			'main_img'      => 'varchar(50)',
+            'published'     => 'datetime',
 		));
+
 		$this->addForeignKey('author', 'posts', 'id_author', 'users', 'id');
 	}
 

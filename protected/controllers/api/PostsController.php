@@ -9,7 +9,8 @@ class PostsController extends ApiController
     public $layout='//layouts/column2';
 
     public $allowedActions = array(
-        'create'
+        'create',
+        'comment',
     );
     /**
      * @return array action filters
@@ -31,7 +32,7 @@ class PostsController extends ApiController
     {
         return array(
             array('allow',  // allow all users to perform 'index' and 'view' actions
-                'actions'=>array('index','view', 'create'),
+                'actions'=>array('index','view', 'create', 'comment'),
                 'users'=>array('*'),
             ),
             //array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -86,6 +87,64 @@ class PostsController extends ApiController
         $this->sendResponse(self::STATUS_BAD_REQUEST, array($model->getErrors(), $model->attributes));//return;
 
     }
+
+    public function actionComment()
+    {
+
+        $errors = array();
+
+        if(Yii::app()->user->isGuest){
+            if(!empty($_POST['Users'])){
+                $users = new Users;
+                $addData = array(
+                    'author_id' => '0',
+                    'when_done' => date('%Y-%m-%d %G:%i:%s'),
+                );
+
+
+                $users->attributes = array_merge($_POST['Users'], array('pass' => 'Insert Ur Pass Here', 'status' => Users::LEFT_COMMENT));
+
+                //$users->validate();
+                $ifKent = $post=Users::model()->find('login=:LOG', array(':LOG'=>$users->login));
+
+
+                if(!$ifKent and $users->save()){
+                    $addData['author_id'] = $users->getAttribute('id');
+                }elseif(!$ifKent){
+                    //$this->sendResponse(self::STATUS_OK, $_POST);
+                    $errors = array_merge($users->getErrors(), $errors);
+                    //unset($errors['author_id']);
+                }else{
+                    $addData['author_id'] = $ifKent->id;
+                }
+            }else{
+                $errors['ident'] = 'Empty identification data';
+            }
+        }
+
+
+        if(!empty($_POST['Comments'])){
+            $comm = new Comments;
+
+            $comm->attributes = array_merge($_POST['Comments'], array('author_id' =>Yii::app()->user->id), $addData);
+
+            if($comm->save()) {
+                $this->sendResponse(self::STATUS_OK, array(
+                    'text'      =>  $comm->comment,
+                    'parent'    =>  $comm->parent,
+                ));
+            }else{
+                $errors = array_merge($comm->getErrors(), $errors);
+            }
+
+        }
+        //$this->sendResponse(self::STATUS_OK, $errors);
+        $this->sendResponse(self::STATUS_BAD_REQUEST, $errors);
+    }
+
+
+
+
 
     /**
      * Updates a particular model.

@@ -43,7 +43,7 @@
 
 	<div class="form-group">
 		<?php //echo $form->labelEx($model,'status'); ?>
-		<?php echo $form->dropDownList($model,'status', array('yes'=>'yes', 'no'=>'no')); ?>
+		<?php //echo $form->dropDownList($model,'status', array('yes'=>'yes', 'no'=>'no')); ?>
 		<?php //echo $form->error($model,'status'); ?>
 	</div>
 

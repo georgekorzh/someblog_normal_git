@@ -22,6 +22,7 @@
         <!-- Include all compiled plugins (below), or include individual files as needed -->
         <script src="<?php echo Yii::app()->request->baseUrl; ?>/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="<?php echo Yii::app()->request->baseUrl; ?>/js/jquery.validate.min.js"></script>
+        <script type="text/javascript" src="<?php echo Yii::app()->request->baseUrl; ?>/js/jquery.scrollTo.min.js"></script>
     </head>
     <body>
     <div class="navbar navbar-inverse" id="real_top">

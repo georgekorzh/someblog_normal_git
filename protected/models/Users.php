@@ -17,6 +17,9 @@ class Users extends UserBase
 {
     public $pic;
     public $imgobj;
+    const LEFT_COMMENT = '3';
+    const CONFIRMED = '2';
+    const UNCONFIRMED = '1';
 	/**
 	 * @return string the associated database table name
 	 */
@@ -135,7 +138,6 @@ class Users extends UserBase
     {
         return DCrypt::encrypt(array('id' => $this->id, 'salt' => $this->password), Yii::app()->params['privateKey']);
     }
-
 
 
 }
