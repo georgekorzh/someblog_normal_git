@@ -34,7 +34,7 @@ $this->menu=array(
             //console.log(CKEDITOR.instances.Posts_body.getData());
             //alert(data.Posts.body);
 
-            $.post('<?php echo Yii::app()->createAbsoluteUrl('api/posts/update/'.$model->id); ?>' ,data)
+            $.post('<?php echo Yii::app()->createAbsoluteUrl('api/posts/update/', array('id' =>$model->id)); ?>' ,data)
                 .done(function(r) {
                     $('#note').html(r);
                     console.log(r);

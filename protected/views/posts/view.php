@@ -54,7 +54,7 @@ $this->menu=array(
                 /
                 <a href="#" class="published"><?php echo $model->publish; ?></a>
                 /
-                <a href="#" class="hmcomments"><?php echo Comments::model()->count(); ?> comment(-s) </a>
+                <a href="#" class="hmcomments"><span class="current_num_comm"><?php echo count($tree); ?></span> comment(-s) </a>
                 <?php //echo '<pre>';var_dump(get_class_methods('Comments')); ?>
             </div>
             <div class="post-body singlebody">
@@ -91,7 +91,7 @@ $this->menu=array(
             <div class="comments">
                 <div class="comm_title">
                     <div class="row">
-                        <div class="col-md-2 num_comm"><?php echo Comments::model()->count(); ?> comment(-s)</div>
+                        <div class="col-md-2 num_comm"><span class="current_num_comm"><?php echo count($tree); ?></span> comment(-s)</div>
                         <div class="col-md-2 col-md-offset-2 leavecomm" id="leaveComment">Leave comment now</div>
                     </div>
                 </div>
@@ -196,6 +196,7 @@ $this->menu=array(
                 <div class="com_butts">
                     <button type="submit" class="pull-right comm_sub">Submit</button>
                 </div>
+                <p id="clearAnswer" class="pull-right" style="display:none;">Cancel<p>
 
             <?php
                 $this->endWidget();
@@ -212,59 +213,182 @@ $this->menu=array(
 
 <script type="text/javascript" src="<?php echo Yii::app()->request->baseUrl; ?>/js/jquery.serializejson.min.js"></script>
 <script type="text/javascript">
-    $('#leaveComment').click(function(){
-        $('body').scrollTo('#Comments_comment');
-    });
-
-    $('#comms-form').validate(  {
-
-        submitHandler: function(form) {
-            var $form = $(form);
-            var self = this;
-            data = $form.serializeJSON();
-            //data.Posts.body = CKEDITOR.instances.Posts_body.getData();
-
-            //console.log(CKEDITOR.instances.Posts_body.getData());
-            //alert(data.Posts.body);
-
-            $.post('<?php echo Yii::app()->createAbsoluteUrl('api/posts/comment'); ?>' ,data)
-                .done(function(r) {
-                    //$('#note').html(r);
-                    console.log(r);
-
-                    $('#Users_login').val('');
-                    $('#Users_email').val('');
-                    $('#Comments_comment').html('');
-                    //addNewComment
-                    /*
-                     *
-                     *
-                     * ВЫЧЕСЛИТЬ УРОВЕНЬ ВЛОЖЕННОСТИ!!!!!!!!!!
-                     * ВЫЧЕСЛИТЬ УРОВЕНЬ ВЛОЖЕННОСТИ!!!!!!!!!!
-                     * ВЫЧЕСЛИТЬ УРОВЕНЬ ВЛОЖЕННОСТИ!!!!!!!!!!
-                     * ВЫЧЕСЛИТЬ УРОВЕНЬ ВЛОЖЕННОСТИ!!!!!!!!!!
-                     *
-                     *
-                     * */
+    $(document).ready(function(){
+        var copyTArea = $('#Comments_comment').clone();
 
 
-                    //alert(r.data.id);
-                })
-                .fail(function(xhr) {
+        $('#clearAnswer').click(function(){
+            //$('#Comments_comment').empty().attr('placeholder', '');
+            $('#Comments_comment').attr('placeholder', '');
+            //$(this);
+            $('#comment_to').val('');
+            $('#clearAnswer').toggle('slow');
+        });
+        $('#leaveComment').click(function(){
+            $('body').scrollTo('#Comments_comment');
+            $('#Comments_comment').focus();
+            $('#clearAnswer').toggle('slow');
+        });
 
-                    console.log(xhr.responseJSON);
-                    console.log(xhr.responseJSON.errors);
+        $('.replyComm').click(function(){
+            phText = $(this).parent().parent().find('a.username').html();
+            //console.log(phText);
 
-                    self.showErrors(xhr.getAllResponseHeaders);
-                    $form.find(':input').prop('disabled', false);
-                    $('#note').html(xhr.getAllResponseHeaders());
-                })
-                .complete(function(res) {
-                    $form.find(':input').prop('disabled', false);
+            $('#Comments_comment').attr('placeholder','Reply to '+ phText);
+            var commId = $(this).parent().parent().parent().parent().parent().attr('id');
+            $('#comment_to').val(commId);
 
+            $('#Comments_comment').attr('placeholder');
+            $('body').scrollTo('#Comments_comment');
+            $('#Comments_comment').focus();
+
+            $('#clearAnswer').toggle('slow');
+        });
+
+        $('.delComm').click(function(){
+            $.post('<?php echo Yii::app()->createAbsoluteUrl('api/posts/delcomm'); ?>/',{id: $(this).attr('data-id')})
+                .done(function(r){
+                    //alert($(this).attr('data-id'));
+                    //$('.current_num_comm').html(r.data.count)
+
+
+                    $('#num_comm' + r.data.id).prev().nextAll('.comm_item').each(function(){
+                        var id = $(this).attr('id');
+
+                        $(this).slideUp();
+
+
+                        /*
+                        var currlevelstr = $(this).attr('data-level');
+                        var currlevel = currlevelstr * 1;
+
+                        var nextlevelstr = $(this).next().attr('data-level');
+                        var nextlevel = nextlevelstr * 1;
+                        */
+                        /*
+
+                        */
+                        //alert( $(this).next().attr('data-parent'));
+
+                        $(this).slideUp();
+
+                        if('num_comm' + $(this).next().attr('data-parent') != id){
+                            $(this).remove();
+                            return false;
+                        }
+
+                        $(this).remove();
+
+                        /**//*
+                        var id = $(this).attr('id');
+                        //$elem = $(this);
+                        $(this).remove();
+                        alert($(this).parent('.comm_item').next('.comm_item').attr('data-parent'));
+                        if($(this).parent().parent().parent().parent().parent().next('.comm_item').attr('data-parent') != id){
+                            return false;
+                        }
+                        */
+                    });
                 });
             return false;
-        }
+        });
 
+        $('#comms-form').validate(  {
+
+            submitHandler: function(form) {
+                var $form = $(form);
+                var self = this;
+                data = $form.serializeJSON();
+                //data.Posts.body = CKEDITOR.instances.Posts_body.getData();
+
+                //console.log(CKEDITOR.instances.Posts_body.getData());
+                //alert(data.Posts.body);
+
+                $.post('<?php echo Yii::app()->createAbsoluteUrl('api/posts/comment'); ?>',data)
+                    .done(function(r) {
+                        //$('#note').html(r);
+                        console.log(r.data);
+
+
+                        var getDiv2append = '';
+                        var newDataLevel = 0;
+                        if(r.data.parent != '0'){
+                            var level = $('#num_comm' + r.data.parent).attr('data-level') * 1;
+                            newDataLevel = level + 1;
+                        }
+                        if(newDataLevel > 3){
+                            newDataLevel = 3;
+                        }
+                        var newLMarginINT = newDataLevel * 100;
+                        var newLMargin = newLMarginINT + 'px';
+
+                        var newCommDiv = '<div style="margin-left:'+newLMargin+'" class="comm_item" id="num_comm'+ r.data.id+' " data-level="'+newDataLevel+'">';
+                                newCommDiv += '<div class="row">';
+                                    newCommDiv += '<div class="col-md-2 comm_ava">';
+                                        newCommDiv += '<img src="/images/'+r.data.pic+'">';
+
+                                    newCommDiv += '</div>';
+                                    newCommDiv += '<div class="col-md-9 comm_all">';
+                                        newCommDiv += '<div class="comment_title">';
+                                            newCommDiv += '<a href="#" class="username">'+ r.data.author+'</a>';
+                                            newCommDiv += '<p class="pull-right">';
+                                                newCommDiv += '<span class="comment_date">'+ r.data.date +'</span>';
+                                                newCommDiv += '<span class="replyComm"></span>';
+                                            newCommDiv += '</p>';
+                                        newCommDiv += '</div>';
+                                        newCommDiv += '<div class="comment_body">';
+                                            newCommDiv += '<p>';
+                                                newCommDiv += r.data.text;
+                                            newCommDiv += '</p>';
+                                        newCommDiv += '</div>';
+                                    newCommDiv += '</div>';
+                                newCommDiv += '</div>';
+                            newCommDiv += '</div>';
+                        if(r.data.parent == '0'){
+                            $('.users_comms').append(newCommDiv);
+                        }else{
+                            $(newCommDiv).insertAfter('#num_comm' + r.data.parent);
+                        }
+
+                        //$('#Comments_comment').html('');
+
+                        //addNewComment
+                        /*
+                         *
+                         *
+                         * ВЫЧЕСЛИТЬ УРОВЕНЬ ВЛОЖЕННОСТИ!!!!!!!!!!
+                         * ВЫЧЕСЛИТЬ УРОВЕНЬ ВЛОЖЕННОСТИ!!!!!!!!!!
+                         * ВЫЧЕСЛИТЬ УРОВЕНЬ ВЛОЖЕННОСТИ!!!!!!!!!!
+                         * ВЫЧЕСЛИТЬ УРОВЕНЬ ВЛОЖЕННОСТИ!!!!!!!!!!
+                         *
+                         *
+                         * */
+
+
+                        //alert(r.data.id);
+                    })
+                    .fail(function(xhr) {
+
+                        console.log(xhr.responseJSON);
+                        console.log(xhr.responseJSON.errors);
+
+                        self.showErrors(xhr.getAllResponseHeaders);
+                        $form.find(':input').prop('disabled', false);
+                        $('#note').html(xhr.getAllResponseHeaders());
+                    })
+                    .complete(function(res) {
+                        $form.find(':input').prop('disabled', false);
+                        $('#clearAnswer:visible').toggle("slow");
+
+                        $('#Users_login').val('');
+                        $('#Users_email').val('');
+                        $('#Comments_comment').remove();
+                        //console.log(copyTArea);
+                        $('.col-md-9.inserts .form-group').append(copyTArea);
+                    });
+                return false;
+            }
+
+        });
     });
 </script>

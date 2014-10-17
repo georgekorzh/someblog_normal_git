@@ -48,7 +48,7 @@ class Comments extends CActiveRecord
         // children - вывод потомков текущего комментария
 		return array(
             'author' => array(self::BELONGS_TO, 'Users', 'author_id'),
-            //'children' => array(self::HAS_MANY, 'Comments', 'parent_id'),
+            'children' => array(self::HAS_MANY, 'Comments', 'parent_id'),
 		);
 	}
 
@@ -105,6 +105,8 @@ class Comments extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+
+
 
     public function getSomeParent($id_post, $parent = 0, $level = 0)
     {

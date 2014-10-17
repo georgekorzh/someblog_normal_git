@@ -95,7 +95,7 @@
                 </nav>
             </div>
         </div>
-        <div clas="content">
+        <div class="content posts">
             <?php echo $content; ?>
         </div>
         <div class="posts">

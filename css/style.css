@@ -312,13 +312,16 @@
 a.username{
     color:#eb005d;
 }
-p.comment_date{
+.comment_date, .replyComm, .delComm{
     font-size:10px;
     color: #cccccc;
 }
 .comment_body{
     font-size:12px;
     color: #959595;
+}
+.comment_body p{
+    word-wrap: break-word;
 }
 .comment_title a.username, .comment_title p.comment_date{
     display: inline-block;
@@ -514,4 +517,23 @@ p.comment_date{
 */
 .searchbody .btn{
     margin: 7px 0;
+}
+.replyComm{
+    color:#eb005d;
+    cursor: pointer;
+}
+.replyComm:hover{
+    text-decoration:underline;
+}
+#clearAnswer{
+    cursor: pointer;
+    line-height: 36px;
+    margin-bottom: 0;
+    padding: 0 25px;
+}
+#clearAnswer:hover{
+    text-decoration:underline;
+}
+.delComm{
+    color:#000;
 }

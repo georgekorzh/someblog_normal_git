@@ -11,6 +11,8 @@ class PostsController extends ApiController
     public $allowedActions = array(
         'create',
         'comment',
+        'update',
+        'delcomm',
     );
     /**
      * @return array action filters
@@ -32,7 +34,7 @@ class PostsController extends ApiController
     {
         return array(
             array('allow',  // allow all users to perform 'index' and 'view' actions
-                'actions'=>array('index','view', 'create', 'comment'),
+                'actions'=>array('index','view', 'create', 'comment', 'update', 'delcomm'),
                 'users'=>array('*'),
             ),
             //array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -93,45 +95,74 @@ class PostsController extends ApiController
 
         $errors = array();
 
+        $author_name = '';
+
+        $avaPath = 'noimage.png';
+
+
         if(Yii::app()->user->isGuest){
             if(!empty($_POST['Users'])){
                 $users = new Users;
                 $addData = array(
                     'author_id' => '0',
-                    'when_done' => date('%Y-%m-%d %G:%i:%s'),
                 );
-
 
                 $users->attributes = array_merge($_POST['Users'], array('pass' => 'Insert Ur Pass Here', 'status' => Users::LEFT_COMMENT));
 
                 //$users->validate();
-                $ifKent = $post=Users::model()->find('login=:LOG', array(':LOG'=>$users->login));
+                $ifKent = Users::model()->find('login=:LOG', array(':LOG'=>$users->login));
 
+
+                //die(var_dump($ifKent));
 
                 if(!$ifKent and $users->save()){
                     $addData['author_id'] = $users->getAttribute('id');
+                    $author_name = $users->login;
                 }elseif(!$ifKent){
                     //$this->sendResponse(self::STATUS_OK, $_POST);
                     $errors = array_merge($users->getErrors(), $errors);
                     //unset($errors['author_id']);
                 }else{
                     $addData['author_id'] = $ifKent->id;
+                    $author_name = $ifKent->login;
+
+                    $avaPath = $ifKent->pic ?  $ifKent->id . '/avatar/' . $ifKent->pic : 'noimage.png';
                 }
             }else{
                 $errors['ident'] = 'Empty identification data';
             }
+        }else{
+            $addData['author_id'] = Yii::app()->user->id;
+            $author_name = Yii::app()->user->login;
+
+            //echo '<pre>';
+            //die(var_dump(Yii::app()->user->getAttribute('pic')));
+            $avaPath =  Yii::app()->user->getAttribute('pic') ?  Yii::app()->user->id . '/avatar/ '.Yii::app()->user->getAttribute('pic') : 'noimage.png';
         }
 
 
-        if(!empty($_POST['Comments'])){
+
+
+        if(!empty($_POST['Comments']) and empty($errors)){
             $comm = new Comments;
 
-            $comm->attributes = array_merge($_POST['Comments'], array('author_id' =>Yii::app()->user->id), $addData);
+            $postData = $_POST['Comments'];
+            $postData['parent'] = str_replace('num_comm', '', $postData['parent']);
+            $comm->attributes = array_merge($postData, $addData);
 
-            if($comm->save()) {
+            $comm->setAttributes(array('when_done' => 'NOW()'));
+            if($comm->save()){
+                //$this->sendResponse(self::STATUS_OK, $addData);
+
+
+
                 $this->sendResponse(self::STATUS_OK, array(
-                    'text'      =>  $comm->comment,
-                    'parent'    =>  $comm->parent,
+                    'text'    =>  $comm->comment,
+                    'id'      =>  $comm->id,
+                    'parent'  =>  $comm->parent ? $comm->parent : '0',
+                    'author'  =>  $author_name,
+                    'date'    =>  date('g:-i A - j F, Y'),
+                    'pic'     =>  $avaPath,
                 ));
             }else{
                 $errors = array_merge($comm->getErrors(), $errors);
@@ -153,21 +184,56 @@ class PostsController extends ApiController
      */
     public function actionUpdate($id)
     {
-        $model=$this->loadModel($id);
-
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
+        $model = $this->loadModel($id);
 
         if(isset($_POST['Posts']))
         {
-            $model->attributes=$_POST['Posts'];
-            if($model->save())
-                $this->redirect(array('view','id'=>$model->id));
+            $data = array_merge($_POST['Posts'], array('id_author' => Yii::app()->user->getCurrent()->id));
+
+            $model->setAttributes($data);
+
+
+
+            if($model->save()){
+                $this->sendResponse(self::STATUS_OK, $model->attributes);
+            }
         }
 
-        $this->render('update',array(
-            'model'=>$model,
-        ));
+        $this->sendResponse(self::STATUS_BAD_REQUEST, array($model->getErrors(), $model->attributes));//return;
+        //die('ok');
+
+        //$this->render('update',array(
+        //    'model'=>$model,
+        //));
+    }
+
+    public function actionDelcomm(){
+
+
+        $model = new Comments;
+
+
+        if(!empty($_POST) and isset($_POST['id'])){
+            $id = $_POST['id'];
+
+            //Comments::model()->deleteByPk($_POST['id']);
+            $family = $model->findByPk($id);
+            //die('test');
+            $post_id = $family->post_id;
+            $family->delete();//()){
+
+            if(empty($family->getErrors())){
+                $this->sendResponse(self::STATUS_OK, array('id' =>  $id, 'count' => $family->count('post_id =?', array($post_id))));
+            }else{
+                $this->sendResponse(self::STATUS_BAD_REQUEST, $family->getErrors());
+            }
+            //}
+
+            $this->sendResponse(self::STATUS_BAD_REQUEST, array('errors' => 'No such record'));
+        }
+
+        //$this->sendResponse(self::STATUS_NOT_FOUND);
+        //$this->loadModel($id)->delete();
     }
 
     /**
